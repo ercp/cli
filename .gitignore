@@ -1,0 +1,20 @@
+##
+## Application artifacts
+##
+
+# direnv cache for Nix shells
+/.direnv/
+
+# Rust build directory
+/target/
+
+##
+## Editor artifacts
+##
+
+/.history/
+
+
+# Added by cargo
+
+/target
