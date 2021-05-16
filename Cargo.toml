@@ -5,3 +5,15 @@ authors = ["Jean-Philippe Cugnet <jean-philippe@cugnet.eu>"]
 edition = "2018"
 
 [dependencies]
+structopt = "0.3.21"
+serialport = "4.0.1"
+hex = "0.4.3"
+
+[dependencies.ercp_basic]
+git = "https://github.com/ercp/ercp_basic.rs.git"
+branch = "develop"
+features = ["host"]
+
+[[bin]]
+name = "ercp"
+path = "src/main.rs"
