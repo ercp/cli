@@ -5,8 +5,7 @@ use std::process;
 use chrono::Local;
 use structopt::StructOpt;
 
-use ercp_cli::Component;
-use ercp_cli::Device;
+use ercp_cli::{device::Device, Component};
 use hex::FromHex;
 
 /// A command line tool for communicating with ERCP devices
@@ -85,10 +84,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             Err(_) => eprintln!("An error has occured"),
         },
 
-        Command::Version { component } => match device.version(component) {
-            Ok(version) => println!("{}", version),
-            Err(_) => eprintln!("An error has occured"),
-        },
+        Command::Version { component } => {
+            match device.version(component.into()) {
+                Ok(version) => println!("{}", version),
+                Err(_) => eprintln!("An error has occured"),
+            }
+        }
 
         Command::MaxLength => match device.max_length() {
             Ok(max_length) => println!("Max length = {}", max_length),
