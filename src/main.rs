@@ -5,7 +5,8 @@ use std::process;
 use chrono::Local;
 use structopt::StructOpt;
 
-use ercp_cli::{device::Device, Component};
+use ercp_cli::Component;
+use ercp_device::Device;
 use hex::FromHex;
 
 /// A command line tool for communicating with ERCP devices

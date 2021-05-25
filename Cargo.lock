@@ -123,9 +123,17 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "ercp_basic",
+ "ercp_device",
  "hex",
- "serialport",
  "structopt",
+]
+
+[[package]]
+name = "ercp_device"
+version = "0.1.0"
+dependencies = [
+ "ercp_basic",
+ "serialport",
 ]
 
 [[package]]

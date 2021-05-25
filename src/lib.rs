@@ -1,7 +1,5 @@
 //! An ERCP CLI builder.
 
-pub mod device;
-
 use std::str::FromStr;
 
 use ercp_basic::command::component;
