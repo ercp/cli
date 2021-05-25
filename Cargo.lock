@@ -92,7 +92,7 @@ checksum = "bd8659882a4d3c3f5c11eb0e54c59d636ee95a5e6c18d6bdca17c536bfc1b681"
 [[package]]
 name = "ercp_basic"
 version = "0.1.0"
-source = "git+https://github.com/ercp/ercp_basic.rs.git?branch=develop#dc6517e60ec879ebce364210b6a1d3c2ff579a4d"
+source = "git+https://github.com/ercp/ercp_basic.rs.git?branch=develop#3edaf08b5159f31006814899d9f5c7867dac30e7"
 dependencies = [
  "embedded-crc-macros",
  "serialport",

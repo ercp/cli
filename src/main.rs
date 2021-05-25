@@ -4,6 +4,7 @@ use std::process;
 
 use structopt::StructOpt;
 
+use ercp_cli::Component;
 use ercp_cli::Device;
 use hex::FromHex;
 
@@ -28,8 +29,26 @@ enum Command {
     /// Tests communication with the device
     Ping,
 
+    /// Resets the device
+    Reset,
+
+    /// Gets the protocol version
+    Protocol,
+
+    /// Gets the version of a component
+    Version { component: Component },
+
+    /// Gets the maximum accepted value length
+    MaxLength,
+
+    /// Gets the device description
+    Description,
+
     /// Sends a custom command
-    Command { command: String, value: String },
+    Command {
+        command: String,
+        value: Option<String>,
+    },
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -48,9 +67,41 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             Err(_) => eprintln!("An error has occured"),
         },
 
+        Command::Reset => {
+            device.reset().ok();
+        }
+
+        Command::Protocol => match device.protocol() {
+            Ok(version) => {
+                println!(
+                    "Protocol: ERCB Basic {}.{}.{}",
+                    version.major, version.minor, version.patch
+                )
+            }
+            Err(_) => eprintln!("An error has occured"),
+        },
+
+        Command::Version { component } => match device.version(component) {
+            Ok(version) => println!("{}", version),
+            Err(_) => eprintln!("An error has occured"),
+        },
+
+        Command::MaxLength => match device.max_length() {
+            Ok(max_length) => println!("Max length = {}", max_length),
+            Err(_) => eprintln!("An error has occured"),
+        },
+
+        Command::Description => match device.description() {
+            Ok(description) => println!("{}", description),
+            Err(_) => eprintln!("An error has occured"),
+        },
+
         Command::Command { command, value } => {
             let command = u8::from_str_radix(&command, 16)?;
-            let value = Vec::<u8>::from_hex(&value)?;
+            let value = match value {
+                Some(value) => Vec::<u8>::from_hex(&value)?,
+                None => vec![],
+            };
 
             match device.command(command, &value) {
                 Ok(reply) => {
