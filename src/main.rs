@@ -2,6 +2,7 @@
 
 use std::process;
 
+use chrono::Local;
 use structopt::StructOpt;
 
 use ercp_cli::Component;
@@ -49,6 +50,9 @@ enum Command {
         command: String,
         value: Option<String>,
     },
+
+    /// Waits for and prints logs sent by the device
+    Log,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -109,6 +113,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
 
                 Err(_) => eprintln!("An error has occured"),
+            }
+        }
+
+        Command::Log => {
+            println!(
+                "{} Starting log session (type ^C to quit)",
+                Local::now().format("%H:%M:%S%.3f")
+            );
+
+            loop {
+                match device.wait_for_log() {
+                    Ok(message) => {
+                        let ts = Local::now();
+                        println!("{} {}", ts.format("%H:%M:%S%.3f"), message);
+                    }
+                    Err(_) => eprintln!("An error has occured"),
+                };
             }
         }
     }

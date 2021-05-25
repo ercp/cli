@@ -3,8 +3,8 @@
 use std::{str::FromStr, time::Duration};
 
 use ercp_basic::{
-    adapter::SerialPortAdapter, command::component, Command, DefaultRouter,
-    ErcpBasic, Error, Version,
+    ack, adapter::SerialPortAdapter, command::component, command::LOG,
+    error::CommandError, Command, DefaultRouter, ErcpBasic, Error, Version,
 };
 
 /// An ERCP device.
@@ -94,8 +94,22 @@ impl Device {
         &mut self,
         command: u8,
         value: &[u8],
-    ) -> Result<Command, ercp_basic::Error> {
+    ) -> Result<Command, Error> {
         let command = Command::new(command, value)?;
         self.ercp.command(command)
+    }
+
+    /// Waits for a log message from the device.
+    pub fn wait_for_log(&mut self) -> Result<String, Error> {
+        let notification = self.ercp.wait_for_command()?;
+
+        if notification.command() == LOG {
+            let message = String::from_utf8(notification.value().into())?;
+            self.ercp.reset_state();
+            self.ercp.notify(ack!()).ok();
+            Ok(message)
+        } else {
+            Err(CommandError::UnexpectedReply.into())
+        }
     }
 }
