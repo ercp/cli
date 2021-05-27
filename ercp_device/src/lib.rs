@@ -14,7 +14,7 @@ pub struct Device {
 
 impl Device {
     /// Creates a new device.
-    pub fn new(port: String) -> Self {
+    pub fn new(port: &str) -> Self {
         let port = serialport::new(port, 115_200)
             .timeout(Duration::from_millis(10))
             .open()
