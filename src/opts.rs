@@ -5,7 +5,6 @@ use std::str::FromStr;
 use ercp_basic::command::component;
 use structopt::StructOpt;
 
-/// Protocol options.
 #[derive(Debug, StructOpt)]
 pub struct Protocol {
     /// Use ERCP Basic
@@ -13,7 +12,6 @@ pub struct Protocol {
     pub basic: bool,
 }
 
-/// Connection options.
 #[derive(Debug, StructOpt)]
 pub struct Connection {
     /// The serial port to use

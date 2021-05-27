@@ -25,7 +25,7 @@ pub trait Router {
             BuiltinCommand::Command { command, value } => {
                 self.command(command, value.as_deref())
             }
-        };
+        }
     }
 
     fn ping(&mut self) {

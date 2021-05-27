@@ -1,10 +1,12 @@
 //! ERCP Device handling.
 
+pub use ercp_basic::{command, error::CommandError, Command, Error};
+
 use std::time::Duration;
 
 use ercp_basic::{
-    ack, adapter::SerialPortAdapter, command::LOG, error::CommandError,
-    Command, DefaultRouter, ErcpBasic, Error, Version,
+    ack, adapter::SerialPortAdapter, command::LOG, DefaultRouter, ErcpBasic,
+    Version,
 };
 
 /// An ERCP device.
