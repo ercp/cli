@@ -9,15 +9,15 @@ use hex::FromHex;
 use structopt::StructOpt;
 
 /// The default ERCP CLI.
-pub struct DefaultCli {
-    opts: DefaultOpts,
-    runner: DefaultCommandRunner,
+pub struct Cli {
+    opts: Opts,
+    router: DefaultRouter,
 }
 
 /// A command line tool for communicating with ERCP devices
 #[derive(Debug, StructOpt)]
 #[structopt(author = "Jean-Philippe Cugnet <jean-philippe@cugnet.eu>")]
-pub struct DefaultOpts {
+pub struct Opts {
     #[structopt(flatten)]
     protocol: Protocol,
 
@@ -83,78 +83,30 @@ pub enum Component {
 }
 
 /// The default command runner.
-struct DefaultCommandRunner {
+struct DefaultRouter {
     device: Device,
 }
 
-impl FromStr for Component {
-    type Err = &'static str;
+pub trait Router {
+    type Command;
 
-    fn from_str(component: &str) -> Result<Self, Self::Err> {
-        match component {
-            "firmware" => Ok(Component::Firmware),
-            "fw" => Ok(Component::Firmware),
-            "ercp" => Ok(Component::Ercp),
-            _ => match u8::from_str_radix(component, 16) {
-                Ok(value) => Ok(Component::Other(value)),
-                Err(_) => Err("Could not parse a compoment"),
-            },
-        }
-    }
-}
+    fn device(&mut self) -> &mut Device;
 
-impl From<&Component> for u8 {
-    fn from(component: &Component) -> Self {
-        match component {
-            Component::Firmware => component::FIRMWARE,
-            Component::Ercp => component::ERCP_LIBRARY,
-            Component::Other(value) => *value,
-        }
-    }
-}
+    fn route(&mut self, command: &Self::Command);
 
-impl DefaultCli {
-    pub fn new(opts: DefaultOpts) -> Self {
-        let device = Device::new(&opts.connection.port);
-        let runner = DefaultCommandRunner::new(device);
-
-        Self { opts, runner }
-    }
-
-    pub fn run(&mut self) {
-        if !self.opts.protocol.basic {
-            eprintln!("You must select a protocol.");
-            process::exit(1);
-        }
-
-        self.handle_command();
-    }
-
-    fn handle_command(&mut self) {
-        match &self.opts.command {
-            BuiltinCommand::Ping => self.runner.ping(),
-            BuiltinCommand::Reset => self.runner.reset(),
-            BuiltinCommand::Protocol => self.runner.protocol(),
-            BuiltinCommand::Version { component } => {
-                self.runner.version(component)
-            }
-            BuiltinCommand::MaxLength => self.runner.max_length(),
-            BuiltinCommand::Description => self.runner.description(),
-            BuiltinCommand::Log => self.runner.log(),
+    fn builtin_commands(&mut self, command: &BuiltinCommand) {
+        match command {
+            BuiltinCommand::Ping => self.ping(),
+            BuiltinCommand::Reset => self.reset(),
+            BuiltinCommand::Protocol => self.protocol(),
+            BuiltinCommand::Version { component } => self.version(component),
+            BuiltinCommand::MaxLength => self.max_length(),
+            BuiltinCommand::Description => self.description(),
+            BuiltinCommand::Log => self.log(),
             BuiltinCommand::Command { command, value } => {
-                self.runner.command(command, value.as_deref())
+                self.command(command, value.as_deref())
             }
         };
-    }
-}
-
-impl DefaultCommandRunner {
-    pub fn new(device: Device) -> Self {
-        Self { device }
-    }
-
-    fn device(&mut self) -> &mut Device {
-        &mut self.device
     }
 
     fn ping(&mut self) {
@@ -233,5 +185,67 @@ impl DefaultCommandRunner {
                 Err(_) => eprintln!("An error has occured"),
             };
         }
+    }
+}
+
+impl FromStr for Component {
+    type Err = &'static str;
+
+    fn from_str(component: &str) -> Result<Self, Self::Err> {
+        match component {
+            "firmware" => Ok(Component::Firmware),
+            "fw" => Ok(Component::Firmware),
+            "ercp" => Ok(Component::Ercp),
+            _ => match u8::from_str_radix(component, 16) {
+                Ok(value) => Ok(Component::Other(value)),
+                Err(_) => Err("Could not parse a compoment"),
+            },
+        }
+    }
+}
+
+impl From<&Component> for u8 {
+    fn from(component: &Component) -> Self {
+        match component {
+            Component::Firmware => component::FIRMWARE,
+            Component::Ercp => component::ERCP_LIBRARY,
+            Component::Other(value) => *value,
+        }
+    }
+}
+
+impl Router for DefaultRouter {
+    type Command = BuiltinCommand;
+
+    fn device(&mut self) -> &mut Device {
+        &mut self.device
+    }
+
+    fn route(&mut self, command: &Self::Command) {
+        self.builtin_commands(command)
+    }
+}
+
+impl Cli {
+    pub fn new(opts: Opts) -> Self {
+        let device = Device::new(&opts.connection.port);
+        let router = DefaultRouter::new(device);
+
+        Self { opts, router }
+    }
+
+    pub fn run(&mut self) {
+        if !self.opts.protocol.basic {
+            eprintln!("You must select a protocol.");
+            process::exit(1);
+        }
+
+        self.router.route(&self.opts.command);
+    }
+}
+
+impl DefaultRouter {
+    pub fn new(device: Device) -> Self {
+        Self { device }
     }
 }
