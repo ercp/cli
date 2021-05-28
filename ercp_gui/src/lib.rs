@@ -12,10 +12,6 @@ pub struct Model {
     port: String,
     device: Option<Device>,
     connection_status: String,
-    info: DeviceInfo,
-}
-
-struct DeviceInfo {
     description: String,
     firmware_version: String,
     ercp_library: String,
@@ -29,16 +25,6 @@ pub enum Msg {
     Quit,
 }
 
-impl Default for DeviceInfo {
-    fn default() -> Self {
-        Self {
-            description: String::from("N/A"),
-            firmware_version: String::from("N/A"),
-            ercp_library: String::from("N/A"),
-        }
-    }
-}
-
 #[widget]
 impl Widget for Win {
     fn model(relm: &Relm<Self>, _: ()) -> Model {
@@ -47,7 +33,9 @@ impl Widget for Win {
             port: String::new(),
             device: None,
             connection_status: String::from("Disconnected."),
-            info: DeviceInfo::default(),
+            description: String::from("N/A"),
+            firmware_version: String::from("N/A"),
+            ercp_library: String::from("N/A"),
         }
     }
 
@@ -72,33 +60,31 @@ impl Widget for Win {
                     if let Some(device) = &mut self.model.device {
                         match device.description() {
                             Ok(description) => {
-                                self.model.info.description = description;
+                                self.model.description = description;
                             }
 
                             Err(_) => {
-                                self.model.info.description =
+                                self.model.description =
                                     String::from("Error :(");
                             }
                         }
 
                         match device.version(component::FIRMWARE) {
                             Ok(version) => {
-                                self.model.info.firmware_version = version;
+                                self.model.firmware_version = version;
                             }
 
                             Err(_) => {
-                                self.model.info.firmware_version =
+                                self.model.firmware_version =
                                     String::from("Error :(");
                             }
                         }
 
                         match device.version(component::ERCP_LIBRARY) {
-                            Ok(version) => {
-                                self.model.info.ercp_library = version
-                            }
+                            Ok(version) => self.model.ercp_library = version,
 
                             Err(_) => {
-                                self.model.info.ercp_library =
+                                self.model.ercp_library =
                                     String::from("Error :(");
                             }
                         }
@@ -114,7 +100,9 @@ impl Widget for Win {
             Msg::Disconnect => {
                 self.model.device = None;
                 self.model.connection_status = String::from("Disconnected.");
-                self.model.info = DeviceInfo::default();
+                self.model.description = String::from("N/A");
+                self.model.firmware_version = String::from("N/A");
+                self.model.ercp_library = String::from("N/A");
 
                 self.widgets.connect_button.set_label("Connect");
                 connect!(
@@ -163,19 +151,19 @@ impl Widget for Win {
                     gtk::Box {
                         orientation: Horizontal,
                         gtk::Label { text: "Description: " },
-                        gtk::Label { text: &self.model.info.description },
+                        gtk::Label { text: &self.model.description },
                     },
 
                     gtk::Box {
                         orientation: Horizontal,
                         gtk::Label { text: "Firmware version: " },
-                        gtk::Label { text: &self.model.info.firmware_version },
+                        gtk::Label { text: &self.model.firmware_version },
                     },
 
                     gtk::Box {
                         orientation: Horizontal,
                         gtk::Label { text: "ERCP library: " },
-                        gtk::Label { text: &self.model.info.ercp_library },
+                        gtk::Label { text: &self.model.ercp_library },
                     },
                 },
             },
