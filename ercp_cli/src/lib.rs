@@ -35,7 +35,9 @@ pub struct Opts {
 
 impl Cli {
     pub fn new(opts: Opts) -> Self {
-        let device = Device::new(&opts.connection.port);
+        let device = Device::new(&opts.connection.port)
+            .expect("Failed to open the port");
+
         let router = DefaultRouter::new(device);
 
         Self { opts, router }

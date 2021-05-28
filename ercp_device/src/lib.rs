@@ -16,15 +16,16 @@ pub struct Device {
 
 impl Device {
     /// Creates a new device.
-    pub fn new(port: &str) -> Self {
+    pub fn new(port: &str) -> Result<Self, serialport::Error> {
         let port = serialport::new(port, 115_200)
             .timeout(Duration::from_millis(10))
-            .open()
-            .expect("Failed to open port");
+            .open()?;
 
-        Self {
+        let device = Self {
             ercp: ErcpBasic::new(SerialPortAdapter::new(port), DefaultRouter),
-        }
+        };
+
+        Ok(device)
     }
 
     /// Pings the device.
