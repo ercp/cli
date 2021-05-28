@@ -1,6 +1,6 @@
-# Contributing to ercp_cli
+# Contributing to the ERCP Toolbox
 
-ercp_cli is written in [Rust](https://www.rust-lang.org/).
+The ERCP toolbox is written in [Rust](https://www.rust-lang.org/).
 
 For branching management, this project uses
 [git-flow](https://github.com/petervanderdoes/gitflow-avh). The `main` branch is
@@ -15,12 +15,12 @@ branches. **Please never commit to master.**
 
 2. Clone your fork to a local repository:
 
-        $ git clone https://github.com/you/ercp_cli.git
-        $ cd ercp_cli
+        $ git clone https://github.com/you/toolbox.git
+        $ cd toolbox
 
 3. Add the main repository as a remote:
 
-        $ git remote add upstream https://github.com/ercp/cli.git
+        $ git remote add upstream https://github.com/ercp/toolbox.git
 
 4. Checkout to `develop`:
 
@@ -30,7 +30,7 @@ branches. **Please never commit to master.**
 
 1. Build the project:
 
-        $ cd ercp_cli
+        $ cd toolbox
         $ cargo build
 
 2. Run the tests:

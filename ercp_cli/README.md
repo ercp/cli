@@ -1,6 +1,7 @@
-# ERCP Toolbox
+# ercp_cli
 
-A toolbox for communicating with ERCP-enabled devices.
+`ercp` is an out-of-the-box command line tool for communicating with devices
+using the [ERCP](https://github.com/ercp/specifications) suite.
 
 *This is a work in progress, please look at the `develop` branch for ongoing
 development.*

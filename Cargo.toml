@@ -1,25 +1,5 @@
-[package]
-name = "ercp_cli"
-version = "0.1.0"
-authors = ["Jean-Philippe Cugnet <jean-philippe@cugnet.eu>"]
-edition = "2018"
-
-[dependencies]
-structopt = "0.3.21"
-ercp_device = { path = "ercp_device" }
-chrono = "0.4.19"
-hex = "0.4.3"
-
-[dependencies.ercp_basic]
-git = "https://github.com/ercp/ercp_basic.rs.git"
-branch = "develop"
-features = ["host"]
-
 [workspace]
 members = [
-    "ercp_device"
+    "ercp_device",
+    "ercp_cli"
 ]
-
-[[bin]]
-name = "ercp"
-path = "src/main.rs"
