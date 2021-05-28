@@ -2,7 +2,7 @@
 
 use std::str::FromStr;
 
-use ercp_basic::command::component;
+use ercp_device::command::component;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
