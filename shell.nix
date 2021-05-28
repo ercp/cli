@@ -14,6 +14,7 @@ mkShell {
     # Project dependencies
     pkgconfig
     libudev
+    gtk3
 
     # Other tools
     git

@@ -1,0 +1,15 @@
+[package]
+name = "ercp_gui"
+version = "0.1.0"
+authors = ["Jean-Philippe Cugnet <jean-philippe@cugnet.eu>"]
+edition = "2018"
+
+[dependencies]
+gtk = "0.9.2"
+relm = "0.21.0"
+relm-derive = "0.21.0"
+ercp_device = { path = "../ercp_device" }
+
+[[bin]]
+name = "ercp-gui"
+path = "src/main.rs"

@@ -1,5 +1,6 @@
 [workspace]
 members = [
     "ercp_device",
-    "ercp_cli"
+    "ercp_cli",
+    "ercp_gui",
 ]
