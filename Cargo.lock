@@ -181,7 +181,7 @@ checksum = "bd8659882a4d3c3f5c11eb0e54c59d636ee95a5e6c18d6bdca17c536bfc1b681"
 [[package]]
 name = "ercp_basic"
 version = "0.1.0"
-source = "git+https://github.com/ercp/ercp_basic.rs.git?branch=develop#239ca474e9aa3671d5fdfb452f826d257f371c63"
+source = "git+https://github.com/ercp/ercp_basic.rs.git?branch=develop#73af75251e8f126731567c55402c7c730c590db1"
 dependencies = [
  "embedded-crc-macros",
  "serialport",
@@ -211,6 +211,7 @@ version = "0.1.0"
 dependencies = [
  "ercp_device",
  "gtk",
+ "hex",
  "relm",
  "relm-derive",
 ]

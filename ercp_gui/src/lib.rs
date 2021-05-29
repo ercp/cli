@@ -6,6 +6,7 @@ use relm::{connect, Relm, Widget};
 use relm_derive::{widget, Msg};
 
 use ercp_device::{command::component, Device};
+use hex::FromHex;
 
 pub struct Model {
     relm: Relm<Win>,
@@ -15,13 +16,19 @@ pub struct Model {
     description: String,
     firmware_version: String,
     ercp_library: String,
+    command: String,
+    value: String,
+    reply: String,
 }
 
 #[derive(Msg)]
 pub enum Msg {
     UpdatePort(String),
+    UpdateCommand(String),
+    UpdateValue(String),
     Connect,
     Disconnect,
+    SendCommand,
     Quit,
 }
 
@@ -36,12 +43,17 @@ impl Widget for Win {
             description: String::from("N/A"),
             firmware_version: String::from("N/A"),
             ercp_library: String::from("N/A"),
+            command: String::new(),
+            value: String::new(),
+            reply: String::new(),
         }
     }
 
     fn update(&mut self, event: Msg) {
         match event {
             Msg::UpdatePort(port) => self.model.port = port,
+            Msg::UpdateCommand(command) => self.model.command = command,
+            Msg::UpdateValue(value) => self.model.value = value,
 
             Msg::Connect => match Device::new(&self.model.port) {
                 Ok(device) => {
@@ -103,6 +115,7 @@ impl Widget for Win {
                 self.model.description = String::from("N/A");
                 self.model.firmware_version = String::from("N/A");
                 self.model.ercp_library = String::from("N/A");
+                self.model.reply = String::new();
 
                 self.widgets.connect_button.set_label("Connect");
                 connect!(
@@ -113,6 +126,45 @@ impl Widget for Win {
                 );
             }
 
+            Msg::SendCommand => {
+                fn parse(
+                    command: &str,
+                    value: &str,
+                ) -> Result<(u8, Vec<u8>), Box<dyn std::error::Error>>
+                {
+                    let command = u8::from_str_radix(command, 16)?;
+                    let value = Vec::<u8>::from_hex(value)?;
+                    Ok((command, value))
+                }
+
+                if let Some(device) = &mut self.model.device {
+                    match parse(&self.model.command, &self.model.value) {
+                        Ok((command, value)) => {
+                            match device.command(command, &value) {
+                                Ok(reply) => {
+                                    let command = reply.command();
+                                    let value = reply.value();
+                                    self.model.reply = format!(
+                                        "{:02X?} {:02X?}",
+                                        command, value
+                                    );
+
+                                    device.reset_ercp_state();
+                                }
+
+                                Err(_) => {
+                                    self.model.reply = String::from("Error");
+                                }
+                            }
+                        }
+
+                        Err(_) => {
+                            self.model.reply = String::from("Parse error");
+                        }
+                    }
+                }
+            }
+
             Msg::Quit => gtk::main_quit(),
         }
     }
@@ -121,27 +173,32 @@ impl Widget for Win {
         gtk::Window {
             gtk::Box {
                 orientation: Vertical,
-
-                gtk::Entry {
-                    placeholder_text: Some("TTY port path"),
-                    changed(entry) => {
-                        let port = entry.get_text().to_string();
-                        Msg::UpdatePort(port)
-                    },
-                },
+                spacing: 20,
 
                 gtk::Box {
-                    orientation: Horizontal,
-                    homogeneous: true,
+                    orientation: Vertical,
 
-                    #[name = "connect_button"]
-                    gtk::Button {
-                        label: "Connect",
-                        clicked => Msg::Connect,
+                    gtk::Entry {
+                        placeholder_text: Some("TTY port path"),
+                        changed(entry) => {
+                            let port = entry.get_text().to_string();
+                            Msg::UpdatePort(port)
+                        },
                     },
 
-                    gtk::Label {
-                        text: &self.model.connection_status,
+                    gtk::Box {
+                        orientation: Horizontal,
+                        homogeneous: true,
+
+                        #[name = "connect_button"]
+                        gtk::Button {
+                            label: "Connect",
+                            clicked => Msg::Connect,
+                        },
+
+                        gtk::Label {
+                            text: &self.model.connection_status,
+                        },
                     },
                 },
 
@@ -164,6 +221,43 @@ impl Widget for Win {
                         orientation: Horizontal,
                         gtk::Label { text: "ERCP library: " },
                         gtk::Label { text: &self.model.ercp_library },
+                    },
+                },
+
+                gtk::Box {
+                    orientation: Horizontal,
+                    homogeneous: true,
+                    spacing: 10,
+
+                    gtk::Box {
+                        orientation: Horizontal,
+                        homogeneous: true,
+
+                        gtk::Entry {
+                            max_length: 2,
+                            changed(entry) => {
+                                let command = entry.get_text().to_string();
+                                Msg::UpdateCommand(command)
+                            },
+                        },
+
+                        gtk::Entry {
+                            changed(entry) => {
+                                let value = entry.get_text().to_string();
+                                Msg::UpdateValue(value)
+                            },
+                        },
+
+                        gtk::Button {
+                            label: "Send command",
+                            clicked => Msg::SendCommand,
+                        },
+                    },
+
+                    gtk::Box {
+                        orientation: Horizontal,
+                        gtk::Label { text: "Reply: " },
+                        gtk::Label { text: &self.model.reply, },
                     },
                 },
             },
