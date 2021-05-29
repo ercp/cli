@@ -68,6 +68,11 @@ impl Device {
         self.ercp.command(command)
     }
 
+    /// Resets the ERCP receiving state.
+    pub fn reset_ercp_state(&mut self) {
+        self.ercp.reset_state()
+    }
+
     /// Waits for a log message from the device.
     pub fn wait_for_log(&mut self) -> Result<String, Error> {
         let notification = self.ercp.wait_for_command()?;
