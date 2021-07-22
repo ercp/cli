@@ -10,4 +10,4 @@ serialport = "4.0.1"
 [dependencies.ercp_basic]
 git = "https://github.com/ercp/ercp_basic.rs.git"
 branch = "develop"
-features = ["host"]
+features = ["serial-host"]
