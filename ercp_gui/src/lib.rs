@@ -1,3 +1,5 @@
+mod connector;
+
 use gtk::{
     prelude::*,
     Orientation::{Horizontal, Vertical},
@@ -8,11 +10,14 @@ use relm_derive::{widget, Msg};
 use ercp_device::{command::component, Device};
 use hex::FromHex;
 
+use connector::Connector;
+
 pub struct Model {
     relm: Relm<Win>,
-    port: String,
+    // connector:
+    // port: String,
     device: Option<Device>,
-    connection_status: String,
+    // connection_status: String,
     description: String,
     firmware_version: String,
     ercp_library: String,
@@ -23,7 +28,6 @@ pub struct Model {
 
 #[derive(Msg)]
 pub enum Msg {
-    UpdatePort(String),
     UpdateCommand(String),
     UpdateValue(String),
     Connect,
@@ -37,9 +41,7 @@ impl Widget for Win {
     fn model(relm: &Relm<Self>, _: ()) -> Model {
         Model {
             relm: relm.clone(),
-            port: String::new(),
             device: None,
-            connection_status: String::from("Disconnected."),
             description: String::from("N/A"),
             firmware_version: String::from("N/A"),
             ercp_library: String::from("N/A"),
@@ -51,79 +53,48 @@ impl Widget for Win {
 
     fn update(&mut self, event: Msg) {
         match event {
-            Msg::UpdatePort(port) => self.model.port = port,
             Msg::UpdateCommand(command) => self.model.command = command,
             Msg::UpdateValue(value) => self.model.value = value,
 
-            Msg::Connect => match Device::new(&self.model.port) {
-                Ok(device) => {
-                    self.model.device = Some(device);
-                    self.model.connection_status =
-                        format!("Connected to {}.", self.model.port);
-
-                    self.widgets.connect_button.set_label("Disconnect");
-                    connect!(
-                        self.widgets.connect_button,
-                        connect_clicked(_),
-                        self.model.relm,
-                        Msg::Disconnect
-                    );
-
-                    if let Some(device) = &mut self.model.device {
-                        match device.description() {
-                            Ok(description) => {
-                                self.model.description = description;
-                            }
-
-                            Err(_) => {
-                                self.model.description =
-                                    String::from("Error :(");
-                            }
+            Msg::Connect => {
+                println!("Connect from the main box");
+                if let Some(device) = &mut self.model.device {
+                    match device.description() {
+                        Ok(description) => {
+                            self.model.description = description;
                         }
 
-                        match device.version(component::FIRMWARE) {
-                            Ok(version) => {
-                                self.model.firmware_version = version;
-                            }
+                        Err(_) => {
+                            self.model.description = String::from("Error :(");
+                        }
+                    }
 
-                            Err(_) => {
-                                self.model.firmware_version =
-                                    String::from("Error :(");
-                            }
+                    match device.version(component::FIRMWARE) {
+                        Ok(version) => {
+                            self.model.firmware_version = version;
                         }
 
-                        match device.version(component::ERCP_LIBRARY) {
-                            Ok(version) => self.model.ercp_library = version,
+                        Err(_) => {
+                            self.model.firmware_version =
+                                String::from("Error :(");
+                        }
+                    }
 
-                            Err(_) => {
-                                self.model.ercp_library =
-                                    String::from("Error :(");
-                            }
+                    match device.version(component::ERCP_LIBRARY) {
+                        Ok(version) => self.model.ercp_library = version,
+
+                        Err(_) => {
+                            self.model.ercp_library = String::from("Error :(");
                         }
                     }
                 }
-
-                Err(error) => {
-                    self.model.connection_status =
-                        format!("Error: {}.", error.to_string());
-                }
-            },
+            }
 
             Msg::Disconnect => {
-                self.model.device = None;
-                self.model.connection_status = String::from("Disconnected.");
                 self.model.description = String::from("N/A");
                 self.model.firmware_version = String::from("N/A");
                 self.model.ercp_library = String::from("N/A");
                 self.model.reply = String::new();
-
-                self.widgets.connect_button.set_label("Connect");
-                connect!(
-                    self.widgets.connect_button,
-                    connect_clicked(_),
-                    self.model.relm,
-                    Msg::Connect
-                );
             }
 
             Msg::SendCommand => {
@@ -175,32 +146,10 @@ impl Widget for Win {
                 orientation: Vertical,
                 spacing: 20,
 
-                gtk::Box {
-                    orientation: Vertical,
-
-                    gtk::Entry {
-                        placeholder_text: Some("TTY port path"),
-                        changed(entry) => {
-                            let port = entry.get_text().to_string();
-                            Msg::UpdatePort(port)
-                        },
-                    },
-
-                    gtk::Box {
-                        orientation: Horizontal,
-                        homogeneous: true,
-
-                        #[name = "connect_button"]
-                        gtk::Button {
-                            label: "Connect",
-                            clicked => Msg::Connect,
-                        },
-
-                        gtk::Label {
-                            text: &self.model.connection_status,
-                        },
-                    },
-                },
+                // Connector {
+                //     // TODO: Make this work.
+                //     Connect => Msg::Connect,
+                // },
 
                 gtk::Box {
                     orientation: Vertical,
