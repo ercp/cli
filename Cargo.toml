@@ -2,5 +2,4 @@
 members = [
     "ercp_device",
     "ercp_cli",
-    "ercp_gui",
 ]
