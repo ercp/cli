@@ -203,8 +203,8 @@ dependencies = [
 
 [[package]]
 name = "ercp_basic"
-version = "0.1.0"
-source = "git+https://github.com/ercp/ercp_basic.rs.git?branch=develop#b2725a068a1a3f36af6f840b69b199f8f93d4766"
+version = "0.1.0-dev"
+source = "git+https://github.com/ercp/ercp_basic.rs.git?branch=develop#911c3d48caba092d13af2c89cc8891aa35dc1a7d"
 dependencies = [
  "embedded-crc-macros",
  "heapless",
@@ -213,7 +213,7 @@ dependencies = [
 
 [[package]]
 name = "ercp_cli"
-version = "0.1.0"
+version = "0.1.0-dev"
 dependencies = [
  "chrono",
  "clap",
@@ -223,7 +223,7 @@ dependencies = [
 
 [[package]]
 name = "ercp_device"
-version = "0.1.0"
+version = "0.1.0-dev"
 dependencies = [
  "ercp_basic",
  "serialport",
