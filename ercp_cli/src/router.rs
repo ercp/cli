@@ -44,8 +44,8 @@ pub trait Router {
 
     fn ping(&mut self) {
         match self.device().ping() {
-            Ok(()) => println!("Device: ACK"),
-            Err(_) => eprintln!("An error has occured"),
+            Ok(Ok(())) => println!("Device: ACK"),
+            _ => eprintln!("An error has occured"),
         }
     }
 
@@ -55,34 +55,34 @@ pub trait Router {
 
     fn protocol(&mut self) {
         match self.device().protocol() {
-            Ok(version) => {
+            Ok(Ok(version)) => {
                 println!(
                     "Protocol: ERCB Basic {}.{}.{}",
                     version.major, version.minor, version.patch
                 )
             }
-            Err(_) => eprintln!("An error has occured"),
+            _ => eprintln!("An error has occured"),
         }
     }
 
     fn version(&mut self, component: &Component) {
         match self.device().version(component.into()) {
-            Ok(version) => println!("{}", version),
-            Err(_) => eprintln!("An error has occured"),
+            Ok(Ok(version)) => println!("{}", version),
+            _ => eprintln!("An error has occured"),
         }
     }
 
     fn max_length(&mut self) {
         match self.device().max_length() {
-            Ok(max_length) => println!("Max length = {}", max_length),
-            Err(_) => eprintln!("An error has occured"),
+            Ok(Ok(max_length)) => println!("Max length = {}", max_length),
+            _ => eprintln!("An error has occured"),
         }
     }
 
     fn description(&mut self) {
         match self.device().description() {
-            Ok(description) => println!("{}", description),
-            Err(_) => eprintln!("An error has occured"),
+            Ok(Ok(description)) => println!("{}", description),
+            _ => eprintln!("An error has occured"),
         }
     }
 
