@@ -2,7 +2,8 @@
 name = "ercp_device"
 version = "0.1.0"
 authors = ["Jean-Philippe Cugnet <jean-philippe@cugnet.eu>"]
-edition = "2018"
+edition = "2021"
+rust-version = "1.59.0"
 
 [dependencies]
 serialport = "4.0.1"
