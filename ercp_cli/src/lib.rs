@@ -22,8 +22,8 @@ pub use router::{DefaultRouter, Router};
 
 use std::process;
 
+use clap::Parser;
 use ercp_device::Device;
-use structopt::StructOpt;
 
 use opts::{BuiltinCommand, Connection, Protocol};
 
@@ -34,16 +34,16 @@ pub struct Cli {
 }
 
 /// A command line tool for communicating with ERCP devices
-#[derive(Debug, StructOpt)]
-#[structopt(author = "Jean-Philippe Cugnet <jean-philippe@cugnet.eu>")]
+#[derive(Debug, Parser)]
+#[clap(author, version)]
 pub struct Opts {
-    #[structopt(flatten)]
+    #[clap(flatten)]
     protocol: Protocol,
 
-    #[structopt(flatten)]
+    #[clap(flatten)]
     connection: Connection,
 
-    #[structopt(subcommand)]
+    #[clap(subcommand)]
     command: BuiltinCommand,
 }
 

@@ -14,11 +14,11 @@
 
 #![deny(unsafe_code)]
 
+use clap::Parser;
 use ercp_cli::{Cli, Opts};
-use structopt::StructOpt;
 
 fn main() {
-    let opts = Opts::from_args();
+    let opts = Opts::parse();
     let mut cli = Cli::new(opts);
     cli.run()
 }

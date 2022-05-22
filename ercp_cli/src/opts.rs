@@ -16,24 +16,24 @@
 
 use std::str::FromStr;
 
+use clap::Parser;
 use ercp_device::command::component;
-use structopt::StructOpt;
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub struct Protocol {
     /// Use ERCP Basic
-    #[structopt(long, short)]
+    #[clap(long, short)]
     pub basic: bool,
 }
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub struct Connection {
     /// The serial port to use
-    #[structopt(long, short)]
+    #[clap(long, short)]
     pub port: String,
 }
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub enum BuiltinCommand {
     /// Tests communication with the device
     Ping,
