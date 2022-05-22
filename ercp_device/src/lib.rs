@@ -56,38 +56,52 @@ impl Device {
     }
 
     /// Pings the device.
-    pub fn ping(&mut self) -> CommandResult<(), PingError> {
-        self.ercp.ping(None)
+    pub fn ping(
+        &mut self,
+        timeout: Option<Duration>,
+    ) -> CommandResult<(), PingError> {
+        self.ercp.ping(timeout)
     }
 
     /// Resets the device.
-    pub fn reset(&mut self) -> CommandResult<(), ResetError> {
-        self.ercp.reset(None)
+    pub fn reset(
+        &mut self,
+        timeout: Option<Duration>,
+    ) -> CommandResult<(), ResetError> {
+        self.ercp.reset(timeout)
     }
 
     /// Gets the protocol version implemented by the device.
-    pub fn protocol(&mut self) -> CommandResult<Version, ProtocolError> {
-        self.ercp.protocol(None)
+    pub fn protocol(
+        &mut self,
+        timeout: Option<Duration>,
+    ) -> CommandResult<Version, ProtocolError> {
+        self.ercp.protocol(timeout)
     }
 
     /// Gets the version of a component.
     pub fn version(
         &mut self,
         component: u8,
+        timeout: Option<Duration>,
     ) -> CommandResult<String, VersionAsStringError> {
-        self.ercp.version_as_string(component, None)
+        self.ercp.version_as_string(component, timeout)
     }
 
     /// Gets the maximum acceptable value length.
-    pub fn max_length(&mut self) -> CommandResult<u8, MaxLengthError> {
-        self.ercp.max_length(None)
+    pub fn max_length(
+        &mut self,
+        timeout: Option<Duration>,
+    ) -> CommandResult<u8, MaxLengthError> {
+        self.ercp.max_length(timeout)
     }
 
     /// Gets the device description.
     pub fn description(
         &mut self,
+        timeout: Option<Duration>,
     ) -> CommandResult<String, DescriptionAsStringError> {
-        self.ercp.description_as_string(None)
+        self.ercp.description_as_string(timeout)
     }
 
     /// Sends a command to the device.
@@ -95,18 +109,22 @@ impl Device {
         &mut self,
         code: u8,
         value: &[u8],
+        timeout: Option<Duration>,
     ) -> Result<(u8, Vec<u8>), CustomCommandError> {
         self.ercp.command(|mut commander| {
             let command = Command::new(code, value)?;
-            let reply = commander.transcieve(command, None)?;
+            let reply = commander.transcieve(command, timeout)?;
             Ok((reply.code(), reply.value().into()))
         })
     }
 
     /// Waits for a log message from the device.
-    pub fn wait_for_log(&mut self) -> Result<String, LogNotificationError> {
+    pub fn wait_for_log(
+        &mut self,
+        timeout: Option<Duration>,
+    ) -> Result<String, LogNotificationError> {
         let result = self.ercp.command(|mut commander| {
-            let notification = commander.receive(None)?;
+            let notification = commander.receive(timeout)?;
 
             if notification.code() == LOG {
                 let message = String::from_utf8(notification.value().into())?;

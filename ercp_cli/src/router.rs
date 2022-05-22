@@ -43,18 +43,18 @@ pub trait Router {
     }
 
     fn ping(&mut self) {
-        match self.device().ping() {
+        match self.device().ping(None) {
             Ok(Ok(())) => println!("Device: ACK"),
             _ => eprintln!("An error has occured"),
         }
     }
 
     fn reset(&mut self) {
-        self.device().reset().ok();
+        self.device().reset(None).ok();
     }
 
     fn protocol(&mut self) {
-        match self.device().protocol() {
+        match self.device().protocol(None) {
             Ok(Ok(version)) => {
                 println!(
                     "Protocol: ERCB Basic {}.{}.{}",
@@ -66,21 +66,21 @@ pub trait Router {
     }
 
     fn version(&mut self, component: &Component) {
-        match self.device().version(component.into()) {
+        match self.device().version(component.into(), None) {
             Ok(Ok(version)) => println!("{}", version),
             _ => eprintln!("An error has occured"),
         }
     }
 
     fn max_length(&mut self) {
-        match self.device().max_length() {
+        match self.device().max_length(None) {
             Ok(Ok(max_length)) => println!("Max length = {}", max_length),
             _ => eprintln!("An error has occured"),
         }
     }
 
     fn description(&mut self) {
-        match self.device().description() {
+        match self.device().description(None) {
             Ok(Ok(description)) => println!("{}", description),
             _ => eprintln!("An error has occured"),
         }
@@ -94,7 +94,7 @@ pub trait Router {
             None => vec![],
         };
 
-        match self.device().command(command, &value) {
+        match self.device().command(command, &value, None) {
             Ok(reply) => {
                 dbg!(reply);
             }
@@ -110,7 +110,7 @@ pub trait Router {
         );
 
         loop {
-            match self.device().wait_for_log() {
+            match self.device().wait_for_log(None) {
                 Ok(message) => {
                     let ts = Local::now();
                     println!("{} {}", ts.format("%H:%M:%S%.3f"), message);
