@@ -14,7 +14,7 @@
 
 //! ERCP CLI built-in options and commands.
 
-use std::str::FromStr;
+use std::{str::FromStr, time::Duration};
 
 use clap::Parser;
 use ercp_device::command::component;
@@ -31,6 +31,17 @@ pub struct Connection {
     /// The serial port to use
     #[clap(long, short)]
     pub port: String,
+}
+
+#[derive(Debug, Parser)]
+pub struct Options {
+    /// The timeout for commands in seconds
+    #[clap(long, short, default_value_t = 1)]
+    pub timeout: u64,
+
+    /// Disables the command timeout
+    #[clap(long)]
+    pub no_timeout: bool,
 }
 
 #[derive(Debug, Parser)]
@@ -69,6 +80,17 @@ pub enum Component {
     Firmware,
     Ercp,
     Other(u8),
+}
+
+impl Options {
+    /// Parses the timeout from the options.
+    pub fn timeout(&self) -> Option<Duration> {
+        if self.no_timeout {
+            None
+        } else {
+            Some(Duration::from_secs(self.timeout))
+        }
+    }
 }
 
 impl FromStr for Component {

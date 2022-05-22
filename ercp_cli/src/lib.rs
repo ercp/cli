@@ -25,7 +25,7 @@ use std::process;
 use clap::Parser;
 use ercp_device::Device;
 
-use opts::{BuiltinCommand, Connection, Protocol};
+use opts::{BuiltinCommand, Connection, Options, Protocol};
 
 /// The default ERCP CLI.
 pub struct Cli {
@@ -42,6 +42,9 @@ pub struct Opts {
 
     #[clap(flatten)]
     connection: Connection,
+
+    #[clap(flatten)]
+    options: Options,
 
     #[clap(subcommand)]
     command: BuiltinCommand,
@@ -63,6 +66,7 @@ impl Cli {
             process::exit(1);
         }
 
-        self.router.route(&self.opts.command);
+        self.router
+            .route(&self.opts.command, self.opts.options.timeout());
     }
 }
