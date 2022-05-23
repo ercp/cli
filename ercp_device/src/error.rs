@@ -14,7 +14,7 @@
 
 //! ERCP Device errors.
 
-use std::string::FromUtf8Error;
+use std::{fmt::Display, string::FromUtf8Error};
 
 use ercp_basic::{
     adapter::SerialPortAdapter, command::NewCommandError, Adapter,
@@ -71,5 +71,30 @@ impl From<ReceivedCommandError> for LogNotificationError {
 impl From<FromUtf8Error> for LogNotificationError {
     fn from(error: FromUtf8Error) -> Self {
         Self::FromUtf8Error(error)
+    }
+}
+
+impl Display for CustomCommandError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::NewCommandError(NewCommandError::TooLong) => {
+                write!(f, "the value is too long")
+            }
+            Self::CommandError(error) => write!(f, "{error}"),
+        }
+    }
+}
+
+impl Display for LogNotificationError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::ReceivedCommandError(error) => {
+                write!(f, "{error}")
+            }
+            Self::UnexpectedFrame => write!(f, "unexpected frame"),
+            Self::FromUtf8Error(_) => {
+                write!(f, "the received string is not valid UTF-8")
+            }
+        }
     }
 }
