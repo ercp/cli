@@ -61,7 +61,12 @@ pub trait Router {
     }
 
     fn reset(&mut self, timeout: Option<Duration>) -> Result<(), CommandError> {
-        self.device().reset(timeout)?.ok();
+        match self.device().reset(timeout)? {
+            Ok(()) => {
+                println!("{}", "The device has been reset".green().bold())
+            }
+            Err(e) => print_error(e),
+        }
         Ok(())
     }
 
