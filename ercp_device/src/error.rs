@@ -18,11 +18,16 @@ use std::string::FromUtf8Error;
 
 use ercp_basic::{
     adapter::SerialPortAdapter, command::NewCommandError, Adapter,
-    CommandError, ReceivedCommandError,
 };
 
 /// An error that can happen when reading from or writing to the serial port.
 pub type IoError = <SerialPortAdapter as Adapter>::Error;
+
+/// A system-level error that can happen while sending / receiving a command.
+pub type CommandError = ercp_basic::CommandError<IoError>;
+
+/// A system-level error that can happen while receiving a command.
+pub type ReceivedCommandError = ercp_basic::ReceivedCommandError<IoError>;
 
 /// The result of a command.
 pub type CommandResult<T, E> = ercp_basic::CommandResult<T, E, IoError>;
@@ -32,13 +37,13 @@ pub enum CustomCommandError {
     /// An error has happened while building the command.
     NewCommandError(NewCommandError),
     /// An error has happened while sending the command or receiving the reply.
-    CommandError(CommandError<IoError>),
+    CommandError(CommandError),
 }
 
 /// An error that can happen when receiving a log notification.
 pub enum LogNotificationError {
     /// An error has occured while receiving the notification.
-    ReceivedCommandError(ReceivedCommandError<IoError>),
+    ReceivedCommandError(ReceivedCommandError),
     /// A frame has been received, but it is not a log notification.
     UnexpectedFrame,
     /// The received string is not valid UTF-8.
@@ -51,14 +56,14 @@ impl From<NewCommandError> for CustomCommandError {
     }
 }
 
-impl From<CommandError<IoError>> for CustomCommandError {
-    fn from(error: CommandError<IoError>) -> Self {
+impl From<CommandError> for CustomCommandError {
+    fn from(error: CommandError) -> Self {
         Self::CommandError(error)
     }
 }
 
-impl From<ReceivedCommandError<IoError>> for LogNotificationError {
-    fn from(error: ReceivedCommandError<IoError>) -> Self {
+impl From<ReceivedCommandError> for LogNotificationError {
+    fn from(error: ReceivedCommandError) -> Self {
         Self::ReceivedCommandError(error)
     }
 }
