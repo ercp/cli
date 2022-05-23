@@ -14,10 +14,11 @@
 
 //! ERCP CLI command router.
 
-use std::time::Duration;
+use std::{fmt::Display, time::Duration};
 
 use chrono::Local;
-use ercp_device::Device;
+use colored::Colorize;
+use ercp_device::{CommandError, Device};
 use hex::FromHex;
 
 use crate::opts::{BuiltinCommand, Component};
@@ -33,7 +34,7 @@ pub trait Router {
         &mut self,
         command: &BuiltinCommand,
         timeout: Option<Duration>,
-    ) {
+    ) -> Result<(), CommandError> {
         match command {
             BuiltinCommand::Ping => self.ping(timeout),
             BuiltinCommand::Reset => self.reset(timeout),
@@ -50,48 +51,72 @@ pub trait Router {
         }
     }
 
-    fn ping(&mut self, timeout: Option<Duration>) {
-        match self.device().ping(timeout) {
-            Ok(Ok(())) => println!("Device: ACK"),
-            _ => eprintln!("An error has occured"),
+    fn ping(&mut self, timeout: Option<Duration>) -> Result<(), CommandError> {
+        match self.device().ping(timeout)? {
+            Ok(()) => println!("Device: ACK"),
+            Err(e) => print_error(e),
         }
+
+        Ok(())
     }
 
-    fn reset(&mut self, timeout: Option<Duration>) {
-        self.device().reset(timeout).ok();
+    fn reset(&mut self, timeout: Option<Duration>) -> Result<(), CommandError> {
+        self.device().reset(timeout)?.ok();
+        Ok(())
     }
 
-    fn protocol(&mut self, timeout: Option<Duration>) {
-        match self.device().protocol(timeout) {
-            Ok(Ok(version)) => {
+    fn protocol(
+        &mut self,
+        timeout: Option<Duration>,
+    ) -> Result<(), CommandError> {
+        match self.device().protocol(timeout)? {
+            Ok(version) => {
                 println!(
                     "Protocol: ERCB Basic {}.{}.{}",
                     version.major, version.minor, version.patch
                 )
             }
-            _ => eprintln!("An error has occured"),
+            Err(e) => print_error(e),
         }
+
+        Ok(())
     }
 
-    fn version(&mut self, component: &Component, timeout: Option<Duration>) {
-        match self.device().version(component.into(), timeout) {
-            Ok(Ok(version)) => println!("{}", version),
-            _ => eprintln!("An error has occured"),
+    fn version(
+        &mut self,
+        component: &Component,
+        timeout: Option<Duration>,
+    ) -> Result<(), CommandError> {
+        match self.device().version(component.into(), timeout)? {
+            Ok(version) => println!("{}", version),
+            Err(e) => print_error(e),
         }
+
+        Ok(())
     }
 
-    fn max_length(&mut self, timeout: Option<Duration>) {
-        match self.device().max_length(timeout) {
-            Ok(Ok(max_length)) => println!("Max length = {}", max_length),
-            _ => eprintln!("An error has occured"),
+    fn max_length(
+        &mut self,
+        timeout: Option<Duration>,
+    ) -> Result<(), CommandError> {
+        match self.device().max_length(timeout)? {
+            Ok(max_length) => println!("Max length = {}", max_length),
+            Err(e) => print_error(e),
         }
+
+        Ok(())
     }
 
-    fn description(&mut self, timeout: Option<Duration>) {
-        match self.device().description(timeout) {
-            Ok(Ok(description)) => println!("{}", description),
-            _ => eprintln!("An error has occured"),
+    fn description(
+        &mut self,
+        timeout: Option<Duration>,
+    ) -> Result<(), CommandError> {
+        match self.device().description(timeout)? {
+            Ok(description) => println!("{}", description),
+            Err(e) => print_error(e),
         }
+
+        Ok(())
     }
 
     fn command(
@@ -99,7 +124,7 @@ pub trait Router {
         command: &str,
         value: Option<&str>,
         timeout: Option<Duration>,
-    ) {
+    ) -> Result<(), CommandError> {
         // TODO: Handle errors.
         let command = u8::from_str_radix(command, 16).unwrap();
         let value = match value {
@@ -111,12 +136,13 @@ pub trait Router {
             Ok(reply) => {
                 dbg!(reply);
             }
-
-            Err(_) => eprintln!("An error has occured"),
+            Err(e) => print_error(e),
         }
+
+        Ok(())
     }
 
-    fn log(&mut self) {
+    fn log(&mut self) -> ! {
         println!(
             "{} Starting log session (type ^C to quit)",
             Local::now().format("%H:%M:%S%.3f")
@@ -128,7 +154,7 @@ pub trait Router {
                     let ts = Local::now();
                     println!("{} {}", ts.format("%H:%M:%S%.3f"), message);
                 }
-                Err(_) => eprintln!("An error has occured"),
+                Err(e) => print_error(e),
             };
         }
     }
@@ -147,7 +173,10 @@ impl Router for DefaultRouter {
     }
 
     fn route(&mut self, command: &Self::Command, timeout: Option<Duration>) {
-        self.builtin_commands(command, timeout)
+        if let Err(error) = self.builtin_commands(command, timeout) {
+            let message = format!("Command error: {error}.").red().bold();
+            eprintln!("{message}");
+        }
     }
 }
 
@@ -155,4 +184,10 @@ impl DefaultRouter {
     pub fn new(device: Device) -> Self {
         Self { device }
     }
+}
+
+/// Prints an error in red.
+fn print_error<E: Display>(error: E) {
+    let message = format!("Error: {error}.").red().bold();
+    eprintln!("{message}");
 }
