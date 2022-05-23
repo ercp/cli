@@ -204,7 +204,7 @@ dependencies = [
 [[package]]
 name = "ercp_basic"
 version = "0.1.0-dev"
-source = "git+https://github.com/ercp/ercp_basic.rs.git?branch=develop#911c3d48caba092d13af2c89cc8891aa35dc1a7d"
+source = "git+https://github.com/ercp/ercp_basic.rs.git?branch=develop#2a9640f20822dbc10b7d6b66f66a5b9564b3cb16"
 dependencies = [
  "embedded-crc-macros",
  "heapless",
