@@ -53,7 +53,7 @@ pub trait Router {
 
     fn ping(&mut self, timeout: Option<Duration>) -> Result<(), CommandError> {
         match self.device().ping(timeout)? {
-            Ok(()) => println!("Device: ACK"),
+            Ok(()) => println!("{}", "The device is alive.".green().bold()),
             Err(e) => print_error(e),
         }
 
@@ -88,7 +88,7 @@ pub trait Router {
         timeout: Option<Duration>,
     ) -> Result<(), CommandError> {
         match self.device().version(component.into(), timeout)? {
-            Ok(version) => println!("{}", version),
+            Ok(version) => println!("{version}"),
             Err(e) => print_error(e),
         }
 
@@ -100,7 +100,7 @@ pub trait Router {
         timeout: Option<Duration>,
     ) -> Result<(), CommandError> {
         match self.device().max_length(timeout)? {
-            Ok(max_length) => println!("Max length = {}", max_length),
+            Ok(max_length) => println!("Max length = {max_length}"),
             Err(e) => print_error(e),
         }
 
@@ -112,7 +112,7 @@ pub trait Router {
         timeout: Option<Duration>,
     ) -> Result<(), CommandError> {
         match self.device().description(timeout)? {
-            Ok(description) => println!("{}", description),
+            Ok(description) => println!("{description}"),
             Err(e) => print_error(e),
         }
 
