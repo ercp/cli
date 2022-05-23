@@ -45,6 +45,8 @@ impl Device {
             .timeout(Duration::from_millis(10))
             .open()?;
 
+        port.clear(serialport::ClearBuffer::All).unwrap();
+
         let device = Self {
             ercp: ErcpBasic::new(
                 SerialPortAdapter::new(port),
