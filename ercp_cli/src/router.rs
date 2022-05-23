@@ -93,7 +93,13 @@ pub trait Router {
         timeout: Option<Duration>,
     ) -> Result<(), CommandError> {
         match self.device().version(component.into(), timeout)? {
-            Ok(version) => println!("{version}"),
+            Ok(version) => {
+                if version == "unknown_component" {
+                    eprintln!("{}", "Error: unknown component.".red().bold());
+                } else {
+                    println!("{version}");
+                }
+            }
             Err(e) => print_error(e),
         }
 
