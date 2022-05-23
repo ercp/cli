@@ -17,12 +17,13 @@
 mod error;
 
 pub use ercp_basic::{
-    command, Command, CommandError, DescriptionAsStringError, MaxLengthError,
-    PingError, ProtocolError, ResetError, Version, VersionAsStringError,
+    command, Command, DescriptionAsStringError, MaxLengthError, PingError,
+    ProtocolError, ResetError, Version, VersionAsStringError,
 };
 
 pub use crate::error::{
-    CommandResult, CustomCommandError, LogNotificationError,
+    CommandError, CommandResult, CustomCommandError, LogNotificationError,
+    ReceivedCommandError,
 };
 
 use std::time::Duration;
